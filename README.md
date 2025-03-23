@@ -1,0 +1,1 @@
+CGT370 Mini Project 2 | This website depicts 3 graphs made with D3.js - Survival Count by Sex, Age vs Fare (Colored by Survival), and Survival by Class and Sex (Stacked Bar). Each visualization is interactive, with informative tooltips appearing when the visualizations are hovered over with the mouse. Insights into the visualizations and datasets are also provided.
