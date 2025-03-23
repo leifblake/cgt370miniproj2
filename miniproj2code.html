@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Code Breakdown - Titanic D3 Project</title>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      background-color: #121a24;
+      color: #f1f1f1;
+      font-family: 'Segoe UI', sans-serif;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 3.0rem;
+      color: #268bd4;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-family: 'Jost', sans-serif;
+    }
+    h2 {
+      color: #90caf9;
+      margin-top: 2rem;
+      font-family: 'Jost', sans-serif;
+    }
+    p, pre {
+      font-size: 1rem;
+      background-color: #1e2a38;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+    code {
+      color: #c3e88d;
+    }
+    .highlight {
+      color: #ffcb6b;
+    }
+    .comment {
+      color: #888;
+      font-style: italic;
+    }
+    nav {
+      background-color: #1e2a38;
+      padding: 1rem;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin: 0;
+      padding: 0;
+    }
+    nav a {
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 1.1rem;
+    }
+    .code-block {
+      background-color: #1e2a38;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      position: relative;
+    }
+    .tooltip {
+      display: none;
+      position: absolute;
+      top: -1.5rem;
+      left: 0;
+      background-color: #333;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .code-block:hover .tooltip {
+      display: block;
+      opacity: 1;
+    }
+    .blue code { color: #82aaff; }
+    .green code { color: #c3e88d; }
+    .pink code { color: #f48fb1; }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav style="background-color: #1e2a38; padding: 1rem; font-family: 'Jost', sans-serif;">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+      
+      <a href="miniproj2home.html" style="color: #ffffff; text-decoration: none; font-size: 1.4rem; font-weight: bold; font-family: 'Jost', sans-serif;">
+        CGT370 Mini Project 2 | Leif Blake
+      </a>
+  
+      <ul style="list-style: none; display: flex; gap: 2rem; margin: 0; padding: 0;">
+        <li><a href="miniproj2home.html" style="color: #ffffff; text-decoration: none; font-size: 1.1rem; font-family: 'Jost', sans-serif;">Home</a></li>
+        <li><a href="miniproj2viz.html" style="color: #ffffff; text-decoration: none; font-size: 1.1rem; font-family: 'Jost', sans-serif;">Visualizations</a></li>
+        <li><a href="miniproj2summary.html" style="color: #ffffff; text-decoration: none; font-size: 1.1rem; font-family: 'Jost', sans-serif;">Summary</a></li>
+        <li><a href="miniproj2code.html" style="color: #ffffff; text-decoration: none; font-size: 1.1rem; font-family: 'Jost', sans-serif;">Code</a></li>
+      </ul>
+  
+    </div>
+  </nav>
+  
+
+  <div class="container">
+    <h1>Code Breakdown</h1>
+
+    <h2>Full Visualization Code</h2>
+    <p>This is a condensed version of the code that powers all three visualizations, with color-coded code and interactive tooltips for better understanding.</p>
+
+    <h2 style="color: #82aaff;">Survival Count by Sex</h2>
+    <div class="code-block blue">
+      <div class="tooltip">Load and group data, define SVG size and chart dimensions for Chart 1.</div>
+<code>// Chart 1
+const counts = d3.rollups(data, v => v.length, d => d.Sex, d => d.Survived);
+const formatted = counts.map(([sex, survs]) => {
+  const obj = { Sex: sex };
+  survs.forEach(([s, count]) => obj[s == "1" ? "Survived" : "Died"] = count);
+  return obj;
+});
+
+const svg = d3.select("#chart1"),
+      margin = {top: 40, right: 20, bottom: 50, left: 60},
+      width = +svg.attr("width") - margin.left - margin.right,
+      height = +svg.attr("height") - margin.top - margin.bottom,
+      g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);</code>
+    </div>
+
+    <div class="code-block blue">
+      <div class="tooltip">Set up keys and scale functions for x and y axes.</div>
+<code>const keys = ["Died", "Survived"];
+const x = d3.scaleBand().domain(formatted.map(d => d.Sex)).range([0, width]).padding(0.4);
+const y = d3.scaleLinear().domain([0, d3.max(formatted, d => (d.Died || 0) + (d.Survived || 0))]).range([height, 0]);</code>
+    </div>
+
+    <div class="code-block blue">
+      <div class="tooltip">Draw axes and add labels for the chart.</div>
+<code>g.append("g").call(d3.axisLeft(y).tickSize(-width)).selectAll("text").attr("class", "axis-label");
+g.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x)).selectAll("text").attr("class", "axis-label");</code>
+    </div>
+
+    <div class="code-block blue">
+      <div class="tooltip">Create bar groups and append rects for stacked bars.</div>
+<code>const groups = g.selectAll(".bar-group").data(formatted).enter()
+  .append("g")
+  .attr("transform", d => `translate(${x(d.Sex)},0)`);
+
+groups.selectAll("rect")
+  .data(d => keys.map(k => ({key: k, value: d[k] || 0, sex: d.Sex})))
+  .enter().append("rect")
+  .attr("y", (d, i, nodes) => {
+    const total = d3.sum(nodes.slice(i), n => +d3.select(n).datum().value);
+    return y(total);
+  })
+  .attr("height", d => height - y(d.value))
+  .attr("width", x.bandwidth())
+  .attr("fill", d => color[d.key]);</code>
+    </div>
+
+    <div class="code-block blue">
+      <div class="tooltip">Implement hover interaction and tooltips for bars.</div>
+<code>.on("mouseover", function(event, d) {
+  d3.select(this).attr("fill", darkerColor[d.key]);
+  tooltip.style("background-color", darkerColor[d.key])
+         .style("opacity", 1)
+         .html(`<strong>${d.sex.charAt(0).toUpperCase() + d.sex.slice(1)}</strong><br>${d.key} Count: ${d.value}`)
+         .style("left", (event.pageX + 10) + "px")
+         .style("top", (event.pageY - 30) + "px");
+})
+.on("mousemove", event => {
+  tooltip.style("left", (event.pageX + 10) + "px")
+         .style("top", (event.pageY - 30) + "px");
+})
+.on("mouseleave", function(event, d) {
+  d3.select(this).attr("fill", color[d.key]);
+  tooltip.style("opacity", 0);
+});</code>
+    </div>
+
+    <div class="code-block blue">
+      <div class="tooltip">Append axis labels for context.</div>
+<code>g.append("text")
+  .attr("x", width / 2)
+  .attr("y", height + 40)
+  .attr("text-anchor", "middle")
+  .attr("class", "axis-label")
+  .text("Sex");
+
+g.append("text")
+  .attr("x", -height / 2)
+  .attr("y", -40)
+  .attr("text-anchor", "middle")
+  .attr("transform", "rotate(-90)")
+  .attr("class", "axis-label")
+  .text("Count");</code>
+    </div>
+    <h2 style="color: #8bc34a;">Age vs Fare (Colored by Survival)</h2>
+
+    <div class="code-block green">
+      <div class="tooltip">Load CSV data and convert necessary fields into numbers for plotting.</div>
+      <code>d3.csv(url, d => ({
+      Age: +d.Age,
+      Fare: +d.Fare,
+      Survived: +d.Survived
+    })).then(data => {</code>
+    </div>
+    
+    <div class="code-block green">
+      <div class="tooltip">Filter out rows where Age or Fare is missing (NaN) to clean the data.</div>
+      <code>data = data.filter(d => !isNaN(d.Age) && !isNaN(d.Fare));</code>
+    </div>
+    
+    <div class="code-block green">
+      <div class="tooltip">Setup SVG canvas, dimensions, and margins for the scatterplot.</div>
+      <code>const svg = d3.select("#chart2"),
+        margin = {top: 30, right: 30, bottom: 50, left: 60},
+        width = +svg.attr("width") - margin.left - margin.right,
+        height = +svg.attr("height") - margin.top - margin.bottom,
+        g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);</code>
+    </div>
+    
+    <div class="code-block green">
+      <div class="tooltip">Create linear scales and assign colors based on survival status.</div>
+      <code>const x = d3.scaleLinear().domain(d3.extent(data, d => d.Age)).range([0, width]);
+    const y = d3.scaleLinear().domain(d3.extent(data, d => d.Fare)).range([height, 0]);
+    const survivalColor = d => d.Survived ? color["Survived"] : color["Died"];
+    const tooltipColor = d => d.Survived ? darkerColor["Survived"] : darkerColor["Died"];</code>
+    </div>
+    
+    <div class="code-block green">
+      <div class="tooltip">Draw x and y axes and apply labels for context.</div>
+      <code>g.append("g").call(d3.axisLeft(y)).selectAll("text").attr("class", "axis-label");
+    g.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x)).selectAll("text").attr("class", "axis-label");
+    
+    g.append("text")
+      .attr("x", width / 2)
+      .attr("y", height + 40)
+      .attr("text-anchor", "middle")
+      .attr("class", "axis-label")
+      .text("Age");
+    
+    g.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("x", -height / 2)
+      .attr("y", -45)
+      .attr("text-anchor", "middle")
+      .attr("class", "axis-label")
+      .text("Fare");</code>
+    </div>
+    
+    <div class="code-block green">
+      <div class="tooltip">Plot each passenger as a circle and attach dynamic tooltips on hover.</div>
+      <code>g.selectAll("circle")
+      .data(data)
+      .enter().append("circle")
+      .attr("cx", d => x(d.Age))
+      .attr("cy", d => y(d.Fare))
+      .attr("r", 4)
+      .attr("fill", d => survivalColor(d))
+      .attr("opacity", 0.7)
+      .on("mouseover", function(event, d) {
+        tooltip.style("opacity", 1)
+               .style("background-color", tooltipColor(d))
+               .html(`Age: ${d.Age}<br>Fare: $${d.Fare.toFixed(2)}<br>${d.Survived ? "Survived" : "Died"}`)
+               .style("left", (event.pageX + 10) + "px")
+               .style("top", (event.pageY - 30) + "px");
+      })
+      .on("mousemove", function(event) {
+        tooltip.style("left", (event.pageX + 10) + "px")
+               .style("top", (event.pageY - 30) + "px");
+      })
+      .on("mouseleave", function() {
+        tooltip.style("opacity", 0);
+      });</code>
+    </div>
+    <h2 style="color: #e91e63;">Survival by Class and Sex (Stacked Bar)</h2>
+
+    <div class="code-block pink">
+      <div class="tooltip">Group and format data by class and sex, count survivors and deceased.</div>
+      <code>const grouped = d3.rollups(data, v => v.length, d => d.Pclass, d => d.Sex, d => d.Survived);
+    const processed = [];
+    
+    grouped.forEach(([pclass, sexData]) => {
+      sexData.forEach(([sex, survs]) => {
+        const row = {Pclass: pclass, Sex: sex, Survived: 0, Died: 0};
+        survs.forEach(([s, count]) => {
+          row[s == "1" ? "Survived" : "Died"] = count;
+        });
+        processed.push(row);
+      });
+    });</code>
+    </div>
+    
+    <div class="code-block pink">
+      <div class="tooltip">Setup the SVG container, margin, and group for this stacked bar chart.</div>
+      <code>const svg = d3.select("#chart3"),
+      margin = {top: 40, right: 30, bottom: 60, left: 60},
+      width = +svg.attr("width") - margin.left - margin.right,
+      height = +svg.attr("height") - margin.top - margin.bottom,
+      g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);</code>
+    </div>
+    
+    <div class="code-block pink">
+      <div class="tooltip">Generate band scale for each gender-class combo and y-axis scale for totals.</div>
+      <code>const x = d3.scaleBand().domain(processed.map(d => `${d.Pclass}-${d.Sex}`)).range([0, width]).padding(0.3);
+    const y = d3.scaleLinear().domain([0, d3.max(processed, d => d.Survived + d.Died)]).nice().range([height, 0]);</code>
+    </div>
+    
+    <div class="code-block pink">
+      <div class="tooltip">Draw the axes and format rotated labels and axis titles.</div>
+      <code>g.append("g").call(d3.axisLeft(y)).selectAll("text").attr("class", "axis-label");
+    
+    g.append("g")
+      .attr("transform", `translate(0,${height})`)
+      .call(d3.axisBottom(x))
+      .selectAll("text")
+      .attr("class", "axis-label")
+      .attr("transform", "rotate(-40)")
+      .style("text-anchor", "end");
+    
+    g.append("text")
+      .attr("x", width / 2)
+      .attr("y", height + 50)
+      .attr("text-anchor", "middle")
+      .attr("class", "axis-label")
+      .text("Gender/Class");
+    
+    g.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("x", -height / 2)
+      .attr("y", -45)
+      .attr("text-anchor", "middle")
+      .attr("class", "axis-label")
+      .text("Count");</code>
+    </div>
+    
+    <div class="code-block pink">
+      <div class="tooltip">Bind data and draw stacked bars for survival status with hover tooltips.</div>
+      <code>g.selectAll(".bar-group")
+      .data(processed)
+      .enter().append("g")
+      .attr("transform", d => `translate(${x(`${d.Pclass}-${d.Sex}`)},0)`)
+      .selectAll("rect")
+      .data(d => [
+        {key: "Died", value: d.Died, Pclass: d.Pclass, Sex: d.Sex},
+        {key: "Survived", value: d.Survived, Pclass: d.Pclass, Sex: d.Sex}
+      ])
+      .enter().append("rect")
+      .attr("y", (d, i, nodes) => {
+        const above = d3.sum(nodes.slice(i), n => d3.select(n).datum().value);
+        return y(above);
+      })
+      .attr("height", d => height - y(d.value))
+      .attr("width", x.bandwidth())
+      .attr("fill", d => color[d.key])
+      .on("mouseover", function(event, d) {
+        d3.select(this).attr("fill", darkerColor[d.key]);
+        tooltip.style("opacity", 1)
+               .style("background-color", darkerColor[d.key])
+               .html(`Class: ${d.Pclass}<br>Sex: ${d.Sex}<br>${d.key}: ${d.value}`)
+               .style("left", (event.pageX + 10) + "px")
+               .style("top", (event.pageY - 30) + "px");
+      })
+      .on("mousemove", function(event) {
+        tooltip.style("left", (event.pageX + 10) + "px")
+               .style("top", (event.pageY - 30) + "px");
+      })
+      .on("mouseleave", function(event, d) {
+        d3.select(this).attr("fill", color[d.key]);
+        tooltip.style("opacity", 0);
+      });</code>
+    </div>
+        
+  </div>
+
+</body>
+</html>

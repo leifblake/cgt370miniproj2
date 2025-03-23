@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Visualizations - Titanic D3 Project</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      background-color: #121a24;
+      color: #f1f1f1;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 2rem;
+    }
+    h1, h2 {
+      text-align: center;
+      font-family: 'Jost', sans-serif;
+    }
+    h1 {
+        font-size: 3.0rem;
+        color: #268bd4;
+    }
+    h2 {
+      color: #90caf9;
+      font-size: 1.7rem;
+    }
+    .chart {
+      margin-bottom: 60px;
+    }
+    svg {
+        background-color: #1e2a38;
+        border-radius: 8px;
+        display: block;
+        margin: 0 auto;
+        }
+    .annotation {
+      font-size: 0.9rem;
+      fill: #ffffff;
+    }
+    .axis-label {
+      fill: #ffffff;
+      font-size: 0.9rem;
+    }
+    .tooltip {
+      position: absolute;
+      text-align: center;
+      padding: 6px 10px;
+      background: #333;
+      color: white;
+      border-radius: 4px;
+      pointer-events: none;
+      font-size: 0.9rem;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav style="background-color: #1e2a38; padding: 1rem; font-family: 'Jost', sans-serif;">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+      
+      <a href="miniproj2home.html" style="color: #ffffff; text-decoration: none; font-size: 1.4rem; font-weight: bold; font-family: 'Jost', sans-serif;">
+        CGT370 Mini Project 2 | Leif Blake
+      </a>
+  
+      <ul style="list-style: none; display: flex; gap: 2rem; margin: 0; padding: 0;">
+        <li><a href="miniproj2home.html" style="color: #ffffff; text-decoration: none; font-size: 1.1rem; font-family: 'Jost', sans-serif;">Home</a></li>
+        <li><a href="miniproj2viz.html" style="color: #ffffff; text-decoration: none; font-size: 1.1rem; font-family: 'Jost', sans-serif;">Visualizations</a></li>
+        <li><a href="miniproj2summary.html" style="color: #ffffff; text-decoration: none; font-size: 1.1rem; font-family: 'Jost', sans-serif;">Summary</a></li>
+        <li><a href="miniproj2code.html" style="color: #ffffff; text-decoration: none; font-size: 1.1rem; font-family: 'Jost', sans-serif;">Code</a></li>
+      </ul>
+  
+    </div>
+  </nav>
+  
+
+  <div class="container">
+    <h1>Visualizations</h1>
+
+    <!-- Chart 1: Survival by Sex -->
+    <div class="chart">
+      <h2>Survival Count by Sex</h2>
+      <svg id="chart1" width="800" height="400"></svg>
+      <p style="text-align: center; max-width: 700px; margin: 0 auto; padding-top: 1rem;">
+        Females had a much higher survival rate than males, reflecting the prioritization of women during evacuation.
+      </p>
+      
+    </div>
+
+    <!-- Chart 2: Age vs Fare -->
+    <div class="chart">
+      <h2>Age vs Fare (Colored by Survival)</h2>
+      <svg id="chart2" width="800" height="400"></svg>
+      <p style="text-align: center; max-width: 700px; margin: 0 auto; padding-top: 1rem;">
+        Younger passengers and those who paid higher fares had better survival odds. Many first-class passengers survived.
+      </p>
+      
+    </div>
+
+    <!-- Chart 3: Complex Chart -->
+    <div class="chart">
+      <h2>Survival by Class and Sex (Stacked Bar)</h2>
+      <svg id="chart3" width="800" height="450"></svg>
+      <p style="text-align: center; max-width: 700px; margin: 0 auto; padding-top: 1rem;">
+        First-class females had the highest survival rate, while third-class males had the lowest. Class and gender combined to significantly impact survival chances.
+      </p>
+      
+    </div>
+  </div>
+
+  <script>
+    const url = "./train.csv";
+
+    const tooltip = d3.select("body").append("div").attr("class", "tooltip");
+
+    const color = { "Died": "#ff6347", "Survived": "#90ee90" };
+    const darkerColor = { "Died": "#cc4030", "Survived": "#5fbf5f" };
+
+    // Chart 1
+    d3.csv(url).then(data => {
+      const counts = d3.rollups(data, v => v.length, d => d.Sex, d => d.Survived);
+      const formatted = counts.map(([sex, survs]) => {
+        const obj = { Sex: sex };
+        survs.forEach(([s, count]) => obj[s == "1" ? "Survived" : "Died"] = count);
+        return obj;
+      });
+
+      const svg = d3.select("#chart1"),
+            margin = {top: 40, right: 20, bottom: 50, left: 60},
+            width = +svg.attr("width") - margin.left - margin.right,
+            height = +svg.attr("height") - margin.top - margin.bottom,
+            g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const keys = ["Died", "Survived"];
+      const x = d3.scaleBand().domain(formatted.map(d => d.Sex)).range([0, width]).padding(0.4);
+      const y = d3.scaleLinear().domain([0, d3.max(formatted, d => (d.Died || 0) + (d.Survived || 0))]).range([height, 0]);
+
+      g.append("g").call(d3.axisLeft(y).tickSize(-width)).selectAll("text").attr("class", "axis-label");
+      g.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x)).selectAll("text").attr("class", "axis-label");
+
+      const groups = g.selectAll(".bar-group").data(formatted).enter()
+        .append("g")
+        .attr("transform", d => `translate(${x(d.Sex)},0)`);
+
+      groups.selectAll("rect")
+        .data(d => keys.map(k => ({key: k, value: d[k] || 0, sex: d.Sex})))
+        .enter().append("rect")
+        .attr("y", (d, i, nodes) => {
+          const total = d3.sum(nodes.slice(i), n => +d3.select(n).datum().value);
+          return y(total);
+        })
+        .attr("height", d => height - y(d.value))
+        .attr("width", x.bandwidth())
+        .attr("fill", d => color[d.key])
+        .on("mouseover", function(event, d) {
+          d3.select(this).attr("fill", darkerColor[d.key]);
+          tooltip.style("background-color", darkerColor[d.key])
+                 .style("opacity", 1)
+                 .html(`<strong>${d.sex.charAt(0).toUpperCase() + d.sex.slice(1)}</strong><br>${d.key} Count: ${d.value}`)
+                 .style("left", (event.pageX + 10) + "px")
+                 .style("top", (event.pageY - 30) + "px");
+        })
+        .on("mousemove", event => {
+          tooltip.style("left", (event.pageX + 10) + "px")
+                 .style("top", (event.pageY - 30) + "px");
+        })
+        .on("mouseleave", function(event, d) {
+          d3.select(this).attr("fill", color[d.key]);
+          tooltip.style("opacity", 0);
+        });
+
+      g.append("text")
+        .attr("x", width / 2)
+        .attr("y", height + 40)
+        .attr("text-anchor", "middle")
+        .attr("class", "axis-label")
+        .text("Sex");
+
+      g.append("text")
+        .attr("x", -height / 2)
+        .attr("y", -40)
+        .attr("text-anchor", "middle")
+        .attr("transform", "rotate(-90)")
+        .attr("class", "axis-label")
+        .text("Count");
+    });
+
+    // Chart 2
+    d3.csv(url, d => ({
+      Age: +d.Age,
+      Fare: +d.Fare,
+      Survived: +d.Survived
+    })).then(data => {
+      data = data.filter(d => !isNaN(d.Age) && !isNaN(d.Fare));
+      const svg = d3.select("#chart2"),
+            margin = {top: 30, right: 30, bottom: 50, left: 60},
+            width = +svg.attr("width") - margin.left - margin.right,
+            height = +svg.attr("height") - margin.top - margin.bottom,
+            g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const x = d3.scaleLinear().domain(d3.extent(data, d => d.Age)).range([0, width]);
+      const y = d3.scaleLinear().domain(d3.extent(data, d => d.Fare)).range([height, 0]);
+      const survivalColor = d => d.Survived ? color["Survived"] : color["Died"];
+      const tooltipColor = d => d.Survived ? darkerColor["Survived"] : darkerColor["Died"];
+
+      g.append("g").call(d3.axisLeft(y)).selectAll("text").attr("class", "axis-label");
+      g.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x)).selectAll("text").attr("class", "axis-label");
+
+      g.append("text")
+        .attr("x", width / 2)
+        .attr("y", height + 40)
+        .attr("text-anchor", "middle")
+        .attr("class", "axis-label")
+        .text("Age");
+
+      g.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -height / 2)
+        .attr("y", -45)
+        .attr("text-anchor", "middle")
+        .attr("class", "axis-label")
+        .text("Fare");
+
+      g.selectAll("circle")
+        .data(data)
+        .enter().append("circle")
+        .attr("cx", d => x(d.Age))
+        .attr("cy", d => y(d.Fare))
+        .attr("r", 4)
+        .attr("fill", d => survivalColor(d))
+        .attr("opacity", 0.7)
+        .on("mouseover", function(event, d) {
+          tooltip.style("opacity", 1)
+                 .style("background-color", tooltipColor(d))
+                 .html(`Age: ${d.Age}<br>Fare: $${d.Fare.toFixed(2)}<br>${d.Survived ? "Survived" : "Died"}`)
+                 .style("left", (event.pageX + 10) + "px")
+                 .style("top", (event.pageY - 30) + "px");
+        })
+        .on("mousemove", function(event) {
+          tooltip.style("left", (event.pageX + 10) + "px")
+                 .style("top", (event.pageY - 30) + "px");
+        })
+        .on("mouseleave", function() {
+          tooltip.style("opacity", 0);
+        });
+    });
+
+    // Chart 3
+    d3.csv(url).then(data => {
+      const grouped = d3.rollups(data, v => v.length, d => d.Pclass, d => d.Sex, d => d.Survived);
+      const processed = [];
+
+      grouped.forEach(([pclass, sexData]) => {
+        sexData.forEach(([sex, survs]) => {
+          const row = {Pclass: pclass, Sex: sex, Survived: 0, Died: 0};
+          survs.forEach(([s, count]) => {
+            row[s == "1" ? "Survived" : "Died"] = count;
+          });
+          processed.push(row);
+        });
+      });
+
+      const svg = d3.select("#chart3"),
+            margin = {top: 40, right: 30, bottom: 60, left: 60},
+            width = +svg.attr("width") - margin.left - margin.right,
+            height = +svg.attr("height") - margin.top - margin.bottom,
+            g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const x = d3.scaleBand().domain(processed.map(d => `${d.Pclass}-${d.Sex}`)).range([0, width]).padding(0.3);
+      const y = d3.scaleLinear().domain([0, d3.max(processed, d => d.Survived + d.Died)]).nice().range([height, 0]);
+
+      g.append("g").call(d3.axisLeft(y)).selectAll("text").attr("class", "axis-label");
+
+      g.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x))
+        .selectAll("text")
+        .attr("class", "axis-label")
+        .attr("transform", "rotate(-40)")
+        .style("text-anchor", "end");
+
+      g.append("text")
+        .attr("x", width / 2)
+        .attr("y", height + 50)
+        .attr("text-anchor", "middle")
+        .attr("class", "axis-label")
+        .text("Gender/Class");
+
+      g.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -height / 2)
+        .attr("y", -45)
+        .attr("text-anchor", "middle")
+        .attr("class", "axis-label")
+        .text("Count");
+
+      g.selectAll(".bar-group")
+        .data(processed)
+        .enter().append("g")
+        .attr("transform", d => `translate(${x(`${d.Pclass}-${d.Sex}`)},0)`)
+        .selectAll("rect")
+        .data(d => [
+          {key: "Died", value: d.Died, Pclass: d.Pclass, Sex: d.Sex},
+          {key: "Survived", value: d.Survived, Pclass: d.Pclass, Sex: d.Sex}
+        ])
+        .enter().append("rect")
+        .attr("y", (d, i, nodes) => {
+          const above = d3.sum(nodes.slice(i), n => d3.select(n).datum().value);
+          return y(above);
+        })
+        .attr("height", d => height - y(d.value))
+        .attr("width", x.bandwidth())
+        .attr("fill", d => color[d.key])
+        .on("mouseover", function(event, d) {
+          d3.select(this).attr("fill", darkerColor[d.key]);
+          tooltip.style("opacity", 1)
+                 .style("background-color", darkerColor[d.key])
+                 .html(`Class: ${d.Pclass}<br>Sex: ${d.Sex}<br>${d.key}: ${d.value}`)
+                 .style("left", (event.pageX + 10) + "px")
+                 .style("top", (event.pageY - 30) + "px");
+        })
+        .on("mousemove", function(event) {
+          tooltip.style("left", (event.pageX + 10) + "px")
+                 .style("top", (event.pageY - 30) + "px");
+        })
+        .on("mouseleave", function(event, d) {
+          d3.select(this).attr("fill", color[d.key]);
+          tooltip.style("opacity", 0);
+        });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Summary - Titanic D3 Visualizations</title>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      background-color: #121a24;
+      color: #f1f1f1;
+      font-family: 'Segoe UI', sans-serif;
+      line-height: 1.7;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 3.0rem;
+      color: #268bd4;
+      text-align: center;
+      font-family: 'Jost', sans-serif;
+    }
+    h2 {
+      color: #90caf9;
+      font-family: 'Jost', sans-serif;
+      font-size: 1.7rem;
+    }
+    p {
+      font-size: 1.05rem;
+    }
+    ul {
+      padding-left: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav style="background-color: #1e2a38; padding: 1rem; font-family: 'Jost', sans-serif;">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+      
+      <a href="miniproj2home.html" style="color: #ffffff; text-decoration: none; font-size: 1.4rem; font-weight: bold; font-family: 'Jost', sans-serif;">
+        CGT370 Mini Project 2 | Leif Blake
+      </a>
+  
+      <ul style="list-style: none; display: flex; gap: 2rem; margin: 0; padding: 0;">
+        <li><a href="miniproj2home.html" style="color: #ffffff; text-decoration: none; font-size: 1.1rem; font-family: 'Jost', sans-serif;">Home</a></li>
+        <li><a href="miniproj2viz.html" style="color: #ffffff; text-decoration: none; font-size: 1.1rem; font-family: 'Jost', sans-serif;">Visualizations</a></li>
+        <li><a href="miniproj2summary.html" style="color: #ffffff; text-decoration: none; font-size: 1.1rem; font-family: 'Jost', sans-serif;">Summary</a></li>
+        <li><a href="miniproj2code.html" style="color: #ffffff; text-decoration: none; font-size: 1.1rem; font-family: 'Jost', sans-serif;">Code</a></li>
+      </ul>
+  
+    </div>
+  </nav>
+  
+  <!-- Content -->
+  <div class="container">
+    <h1>Summary & Reflection</h1>
+
+    <h2>Insights from Visualizations</h2>
+    <h3>Survival by Sex</h3>
+    <p>
+    The bar chart clearly shows a dramatic difference in survival rates between males and females. Females had a significantly higher chance of survival, with more women surviving than dying. This supports historical narratives that women were given priority during the evacuation process. Males, on the other hand, were much more likely to perish, which could be attributed to both social norms and the lack of available lifeboats.
+    </p>
+
+    <h3>Age vs Fare</h3>
+    <p>
+    The scatter plot comparing age and fare reveals several important trends. Survivors cluster more densely in the higher fare and younger age range, while many non-survivors appear in the mid-to-lower fare and older age brackets. This indicates that passengers who paid higher fares — likely first-class passengers — had better access to lifeboats and resources. Younger passengers, particularly children, were also more likely to survive, aligning with the “women and children first” rescue protocol.
+    </p>
+
+    <h3>Survival by Class & Sex</h3>
+    <p>
+    The stacked bar chart shows a strong interaction between class and gender. First-class females had the highest survival count by far, emphasizing the privilege and priority associated with both gender and socioeconomic status. Third-class males, meanwhile, had the lowest survival rate, underscoring the challenges faced by lower-class passengers during the disaster. This visualization powerfully illustrates how layered social structures influenced individual survival outcomes on the Titanic.
+    </p>
+
+    <h2>D3.js vs. Python Visualization</h2>
+    <p><strong>What was easier in Python?</strong></p>
+    <ul>
+      <li>Quick creation of charts using high-level libraries like Seaborn and Matplotlib</li>
+      <li>Data manipulation and cleaning with pandas</li>
+      <li>Built-in statistical plots (e.g., regression, KDE)</li>
+    </ul>
+
+    <p><strong>What was better with D3.js?</strong></p>
+    <ul>
+      <li>Highly customizable and interactive charts</li>
+      <li>Web-based delivery and live tooltips/animations</li>
+      <li>Great for storytelling and presentation on the web</li>
+    </ul>
+
+    <h2>Lessons Learned</h2>
+    <p>
+      Designing effective data visualizations requires balancing clarity with visual appeal. Python tools are great for quick analysis,
+      but D3.js offers a powerful way to tell data-driven stories interactively on the web. Understanding your audience, choosing the right chart types,
+      and using annotations effectively are key to success.
+    </p>
+  </div>
+
+</body>
+</html>
